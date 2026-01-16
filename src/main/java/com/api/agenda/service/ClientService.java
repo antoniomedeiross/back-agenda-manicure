@@ -3,6 +3,7 @@ package com.api.agenda.service;
 import com.api.agenda.dto.ClientDTO;
 import com.api.agenda.dto.ClientResponseDTO;
 import com.api.agenda.entity.Client;
+import com.api.agenda.entity.User;
 import com.api.agenda.repository.ClientRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.http.ResponseEntity;
@@ -55,5 +56,28 @@ public class ClientService {
         );
 
         return ResponseEntity.ok(dto);
+    }
+
+    public ClientResponseDTO updateClientProfile(UUID id, ClientDTO clientDTO) {
+        Client cliente = clientRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
+
+        cliente.setName(clientDTO.name());
+        cliente.setEmail(clientDTO.email());
+        cliente.setPhone(clientDTO.phone());
+
+        clientRepository.save(cliente);
+
+        return new ClientResponseDTO(
+                cliente.getName(),
+                cliente.getEmail(),
+                cliente.getPhone()
+        );
+    }
+
+    public void deleteClient(UUID id) {
+        Client cliente = clientRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
+        clientRepository.delete(cliente);
     }
 }

@@ -35,9 +35,36 @@ public class ServicoController {
         return ResponseEntity.ok(lista);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/{slug}")
+    public ResponseEntity<Servico> obterPorSlug(@PathVariable String slug) {
+        var servico = servicoService.buscarPorSlug(slug);
+        return ResponseEntity.ok(servico);
+    }
+
+
+    // se slug nao funcionar pode ser por id
+    @GetMapping("/id/{id}")
     public ResponseEntity<Servico> obterPorId(@PathVariable UUID id) {
         var servico = servicoService.buscarServico(id);
         return ResponseEntity.ok(servico);
+    }
+
+
+    @PatchMapping("/edit/{slug}")
+    public ResponseEntity<Servico> atualizarServico(@PathVariable String slug, @RequestBody ServicoDTO dadosAtualizados) {
+        var servicoAtualizado = servicoService.atualizarServico(slug, dadosAtualizados);
+        return ResponseEntity.ok(servicoAtualizado);
+    }
+
+    @DeleteMapping("/delete/{slug}")
+    public ResponseEntity<String> deletarServico(@PathVariable String slug) {
+        servicoService.deletarServico(slug);
+        return ResponseEntity.ok("Serviço deletado com sucesso.");
+    }
+
+    @DeleteMapping("/delete/id/{id}")
+    public ResponseEntity<String> deletarServicoPorId(@PathVariable UUID id) {
+        servicoService.deletarServico(id);
+        return ResponseEntity.ok("Serviço deletado com sucesso.");
     }
 }

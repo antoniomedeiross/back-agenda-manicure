@@ -32,10 +32,14 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, "/client/cadastro").permitAll() // qualquer um pode se cadastrar
                         .requestMatchers(HttpMethod.POST, "/auth/login").permitAll() // qualquer um pode acessar o login
+
                         .requestMatchers(HttpMethod.GET, "/services").permitAll() // qualquer um pode listar serviços
-                        .requestMatchers(HttpMethod.POST, "/services").hasAllRoles("MANICURE", "ADMIN") // so manicures e admin podem cadastrar serviços
-                        .requestMatchers(HttpMethod.POST, "/manicure").hasRole("ADMIN") // so ADMIN podem cadastrar manicures
-                        .requestMatchers(HttpMethod.GET, "/manicure").permitAll() // qualquer um pode listar manicures
+                        .requestMatchers(HttpMethod.POST, "/services").hasAnyRole("MANICURE", "ADMIN") // so manicures e admin podem cadastrar serviços
+                        .requestMatchers(HttpMethod.PATCH, "/services/**").hasAnyRole("MANICURE", "ADMIN") // so manicures e admin podem atualizar serviços
+                        .requestMatchers(HttpMethod.DELETE, "/services/**").hasAnyRole("MANICURE", "ADMIN") // so manicures e admin podem deletar serviços
+
+                        .requestMatchers(HttpMethod.POST, "/manicures").hasRole("ADMIN") // so ADMIN podem cadastrar manicures
+                        .requestMatchers(HttpMethod.GET, "/manicures").permitAll() // qualquer um pode listar manicures
                         .anyRequest().authenticated() // todas as outras requisições precisam estar autenticadas
                 )
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)

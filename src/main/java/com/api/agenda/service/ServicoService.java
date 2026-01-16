@@ -34,15 +34,14 @@ public class ServicoService {
     private String gerarSlug(String nome) {
         if (nome == null) return "";
 
-        return nome.toLowerCase()
-                //.normalize(Normalizer.Form.NFD) // Remove acentos
-                .replaceAll("[^\\p{ASCII}]", "")
-                .replaceAll("[^a-z0-9\\s]", "") // Remove caracteres especiais
-                .replaceAll("\\s+", "-")        // Substitui espaços por hifens
-                .trim();
+        return Normalizer.normalize(nome.toLowerCase().trim(), Normalizer.Form.NFD)
+                .replaceAll("[^\\p{ASCII}]", "")   // remove acentos
+                .replaceAll("[^a-z0-9\\s]", "")    // remove caracteres especiais
+                .replaceAll("\\s+", "-")           // espaços → hífen
+                .replaceAll("^-+|-+$", "");        // remove hífens no início/fim
     }
 
-    public List<Servico> listarServicos() {
+        public List<Servico> listarServicos() {
         return servicoRepository.findAll();
     }
 
@@ -54,5 +53,37 @@ public class ServicoService {
     public Servico buscarPorSlug(String slug) {
         return servicoRepository.findBySlug(slug)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Serviço não encontrado"));
+    }
+
+
+    public Servico atualizarServico(String slug, ServicoDTO dadosAtualizados){
+        Servico servicoExistente = buscarPorSlug(slug);
+
+        if(dadosAtualizados.nome() != null) {
+            servicoExistente.setNome(dadosAtualizados.nome());
+            servicoExistente.setSlug(gerarSlug(servicoExistente.getNome()));
+        }
+        if(dadosAtualizados.descricao() != null) {
+            servicoExistente.setDescricao(dadosAtualizados.descricao());
+        }
+        if(dadosAtualizados.duracao() != null) {
+            servicoExistente.setDuracao(dadosAtualizados.duracao());
+        }
+        if(dadosAtualizados.preco() != null) {
+            servicoExistente.setPreco(dadosAtualizados.preco());
+        }
+
+       return servicoRepository.save(servicoExistente);
+    }
+
+
+    // SOBRECARGA - Pró Bianca ficaria orgulhosa
+    public void deletarServico(String slug) {
+        Servico servico = buscarPorSlug(slug);
+        servicoRepository.delete(servico);
+    }
+    public void deletarServico(UUID id) {
+        Servico servico = buscarServico(id);
+        servicoRepository.delete(servico);
     }
 }

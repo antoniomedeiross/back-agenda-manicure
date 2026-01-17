@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/manicures")
@@ -33,5 +34,20 @@ public class ManicureContoller {
         return ResponseEntity.ok(manicureResponseDTO);
     }
 
+    @PatchMapping("/edit/{id}")
+    public ResponseEntity<ManicureResponseDTO> editarManicure(@PathVariable UUID id ,
+                                                              @RequestBody @Valid ManicureRequestDTO manicureDTO) {
+        ManicureResponseDTO updatedManicure = manicureService.editManicure(id, manicureDTO);
+
+        return ResponseEntity.ok(updatedManicure);
+    }
+
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<String> deletManicure (@PathVariable UUID id) {
+        String response = manicureService.deleteManicure(id);
+
+        return ResponseEntity.ok(response);
+    }
 
 }

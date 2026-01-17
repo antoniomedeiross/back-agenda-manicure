@@ -5,10 +5,14 @@ import com.api.agenda.dto.ManicureResponseDTO;
 import com.api.agenda.entity.Manicure;
 import com.api.agenda.repository.ManicureRepository;
 import jakarta.transaction.Transactional;
+import org.jspecify.annotations.NonNull;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class ManicureService {
@@ -36,7 +40,7 @@ public class ManicureService {
         manicure.setName(manicureDTO.name());
         manicure.setEmail(manicureDTO.email());
         manicure.setEspecialidade(manicureDTO.especialidade());
-        manicure.setPassword(manicureDTO.password());
+        manicure.setPassword(passwordEncoder.encode(manicureDTO.password()));
         manicure.setRole("ROLE_MANICURE");
 
         manicureRepository.save(manicure);
@@ -49,8 +53,52 @@ public class ManicureService {
     }
 
     // Read
+    public ManicureResponseDTO getManicure(UUID id) {
+        var manicure = manicureRepository.findById(id)
+                .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND, "Manicure não encontrada"));
 
+        return new ManicureResponseDTO(
+                manicure.getName(),
+                manicure.getEmail(),
+                manicure.getEspecialidade()
+        );
+    }
 
     // Update
+    @Transactional
+    public ManicureResponseDTO editManicure(UUID id, @NonNull ManicureRequestDTO manicureDTO) {
+        var manicure = manicureRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,"Manicure não encontrada"));
+
+        if(manicureDTO.name() != null ){
+            manicure.setName(manicureDTO.name());
+        }
+        if(manicureDTO.email() != null ) {
+            manicure.setEmail(manicureDTO.email());
+        }
+        if(manicureDTO.especialidade() != null ) {
+            manicure.setEspecialidade(manicureDTO.especialidade());
+        }
+        if (manicureDTO.password() != null && !manicureDTO.password().isEmpty()) {
+            manicure.setPassword(passwordEncoder.encode(manicureDTO.password()));
+        }
+
+        manicureRepository.save(manicure);
+
+        return new ManicureResponseDTO(
+                manicure.getName(),
+                manicure.getEmail(),
+                manicure.getEspecialidade()
+        );
+    }
+
     // Delete
+    public String deleteManicure(UUID id){
+        var manicure = manicureRepository.findById(id)
+                .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND,"Manicure nao encontrada"));
+
+        manicureRepository.delete(manicure);
+
+        return "Manicure deletada com sucesso";
+    }
 }

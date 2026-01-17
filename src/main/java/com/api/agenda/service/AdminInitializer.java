@@ -30,14 +30,13 @@ public class AdminInitializer implements CommandLineRunner {
             admin.setName("Admin");
             admin.setEmail(adminEmail);
             admin.setPassword(encoder.encode(adminPassword));
-            admin.setRole("ROLE_ADMIN"); // <--- O "superpoder"
+            admin.setRole("ROLE_ADMIN"); //
             admin.setEspecialidade("Gestora");
 
-            // Preencha outros campos obrigatórios (Nome, etc)
+
             repository.save(admin);
 
-            // TIRAR DEPOIS
-            System.out.println(">>> Administrador mestre criado com sucesso: " + adminEmail);
+
         }
     }
 }

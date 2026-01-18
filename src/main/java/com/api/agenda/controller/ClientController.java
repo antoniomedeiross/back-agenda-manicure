@@ -27,10 +27,10 @@ public class ClientController {
     }
 
     @PostMapping("/cadastro")
-    public ResponseEntity<ClientDTO> registerClient(@RequestBody @Valid ClientDTO clientDTO) {
+    public ResponseEntity<ClientResponseDTO> registerClient(@RequestBody @Valid ClientDTO clientDTO) {
 
-        clientService.saveClient(clientDTO);
-        return ResponseEntity.ok(clientDTO);
+        ClientResponseDTO resp = clientService.saveClient(clientDTO);
+        return ResponseEntity.ok(resp);
     }
 
     @GetMapping("meu-perfil")

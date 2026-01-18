@@ -25,7 +25,7 @@ public class ClientService {
     }
 
     @Transactional // Garante que se algo falhar, nada seja salvo no banco
-    public void saveClient(ClientDTO dto) {
+    public ClientResponseDTO saveClient(ClientDTO dto) {
 
         // verifica se o email já está em uso
         if (clientRepository.existsByEmail(dto.email())) {
@@ -44,6 +44,11 @@ public class ClientService {
 
         // 4. Persistência
         clientRepository.save(client);
+        return new ClientResponseDTO(
+                client.getName(),
+                client.getEmail(),
+                client.getPhone()
+        );
     }
 
     public ResponseEntity<ClientResponseDTO> getClientProfile(UUID id) {

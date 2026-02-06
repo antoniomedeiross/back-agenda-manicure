@@ -8,11 +8,16 @@ services:
       POSTGRES_PASSWORD: tonito
     ports:
       - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d agenda"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
     volumes:
       - pgdata:/var/lib/postgresql/data
 
   backend:
-    build: ./ # caminho para onde está seu Dockerfile
+    build: .
     container_name: agenda-api
     ports:
       - "8080:8080"
@@ -25,7 +30,6 @@ services:
       - JWT_SECRET=uma-chave-muito-mais-segura-no-docker-123
       - ADMIN_EMAIL=admin@sistema.com
       - ADMIN_PASSWORD=admin123
-
 
 volumes:
   pgdata:

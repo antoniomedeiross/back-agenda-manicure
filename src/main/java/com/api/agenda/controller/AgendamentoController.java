@@ -1,5 +1,8 @@
 package com.api.agenda.controller;
 
+import com.api.agenda.dto.SlotDTO;
+import java.time.LocalDate;
+import java.util.List;
 import com.api.agenda.dto.AgendamentoRequestDTO;
 import com.api.agenda.dto.AgendamentoResponseDTO;
 import com.api.agenda.service.AgendamentoService;
@@ -31,6 +34,15 @@ public class AgendamentoController {
     ) {
         Page<AgendamentoResponseDTO> agendamentos = agendamentoService.listarAgendamentosFuturos(paginacao);
         return ResponseEntity.ok(agendamentos);
+    }
+
+    @GetMapping("/disponibilidade")
+    public ResponseEntity<List<SlotDTO>> consultarDisponibilidade(
+            @RequestParam String manicureEmail,
+            @RequestParam LocalDate data
+    ) {
+        List<SlotDTO> slots = agendamentoService.consultarDisponibilidade(manicureEmail, data);
+        return ResponseEntity.ok(slots);
     }
 
     // POST

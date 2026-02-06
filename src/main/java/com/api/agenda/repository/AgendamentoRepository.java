@@ -13,4 +13,6 @@ import java.util.UUID;
 @Repository
 public interface AgendamentoRepository extends JpaRepository<Agendamento, UUID> {
     Page<Agendamento> findAgendamentoByDataHoraAfter(LocalDateTime dataHoraAfter, Pageable pageable);
+
+    List<Agendamento> findByManicure_EmailAndDataHoraBetween(String manicureEmail, LocalDateTime start, LocalDateTime end);
 }

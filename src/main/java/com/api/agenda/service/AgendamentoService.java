@@ -16,6 +16,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import com.api.agenda.dto.SlotDTO;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.Set;
+import java.util.stream.Collectors;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
@@ -51,6 +57,40 @@ public class AgendamentoService {
                 a.getDataHora(),
                 a.getStatus()
         ));
+    }
+
+    public List<SlotDTO> consultarDisponibilidade(String manicureEmail, LocalDate data) {
+        LocalDateTime startOfDay = data.atStartOfDay();
+        LocalDateTime endOfDay = data.atTime(LocalTime.MAX);
+
+        List<Agendamento> agendamentos = agendamentoRepository.findByManicure_EmailAndDataHoraBetween(manicureEmail, startOfDay, endOfDay);
+        
+        Set<LocalTime> horariosOcupados = agendamentos.stream()
+                .filter(a -> !a.getStatus().equalsIgnoreCase("CANCELADO"))
+                .map(a -> a.getDataHora().toLocalTime())
+                .collect(Collectors.toSet());
+
+        List<SlotDTO> slots = new ArrayList<>();
+        LocalTime inicio = LocalTime.of(8, 0);
+        LocalTime fim = LocalTime.of(18, 0);
+
+        while (inicio.isBefore(fim)) {
+            // Se o horário já passou hoje, considera indisponível? 
+            // Para simplicidade, vou considerar apenas se tem agendamento.
+            // Mas num sistema real, se data == hoje e hora < agora, deveria ser false.
+            
+            boolean ocupado = horariosOcupados.contains(inicio);
+            
+            // Regra extra: não agendar no passado
+            if (data.isEqual(LocalDate.now()) && inicio.isBefore(LocalTime.now())) {
+                 ocupado = true;
+            }
+
+            slots.add(new SlotDTO(inicio, !ocupado));
+            inicio = inicio.plusHours(1);
+        }
+
+        return slots;
     }
 
     // POST
